@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use SocialiteProviders\Manager\SocialiteWasCalled;
+use SocialiteProviders\Google\Provider;
 use App\Models\User;
 use Filament\Support\Facades\FilamentView;
 use Illuminate\Support\Facades\Blade;
@@ -31,8 +33,8 @@ class AppServiceProvider extends ServiceProvider
             return true;
         });
         // Gate::policy()
-        Event::listen(function (\SocialiteProviders\Manager\SocialiteWasCalled $event) {
-            $event->extendSocialite('discord', \SocialiteProviders\Google\Provider::class);
+        Event::listen(function (SocialiteWasCalled $event) {
+            $event->extendSocialite('discord', Provider::class);
         });
     }
 }

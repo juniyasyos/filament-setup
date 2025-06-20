@@ -2,19 +2,19 @@
 
 namespace App\Filament\Pages;
 
+use Filament\Auth\Http\Responses\Contracts\LoginResponse;
+use App\Models\User;
 use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\Component;
 use Filament\Forms\Components\TextInput;
-use Filament\Pages\Auth\Login as BaseLogin;
 use Illuminate\Contracts\View\View;
-use Filament\Http\Responses\Auth\Contracts\LoginResponse;
 use Filament\Models\Contracts\FilamentUser;
 use Illuminate\Validation\ValidationException;
 
-class Login extends BaseLogin
+class Login extends \Filament\Auth\Pages\Login
 {
-    protected static string $view = 'filament.pages.login';
+    protected string $view = 'filament.pages.login';
 
     public function authenticate(): ?LoginResponse
     {
@@ -29,7 +29,7 @@ class Login extends BaseLogin
         $data = $this->form->getState();
 
         // Check if user exists and was created through social login
-        $user = \App\Models\User::where('email', $data['email'])->first();
+        $user = User::where('email', $data['email'])->first();
         if ($user && is_null($user->password)) {
             throw ValidationException::withMessages([
                 'data.email' => 'This account was created using social login. Please login with Google.',
@@ -44,7 +44,7 @@ class Login extends BaseLogin
 
         if (
             ($user instanceof FilamentUser) &&
-            (! $user->canAccessPanel(Filament::getCurrentPanel()))
+            (! $user->canAccessPanel(Filament::getCurrentOrDefaultPanel()))
         ) {
             Filament::auth()->logout();
 
@@ -74,7 +74,7 @@ class Login extends BaseLogin
         return [
             'form' => $this->form(
                 $this->makeForm()
-                    ->schema([
+                    ->components([
                         $this->getEmailFormComponent(),
                         $this->getPasswordFormComponent(),
                         $this->getRememberFormComponent(),

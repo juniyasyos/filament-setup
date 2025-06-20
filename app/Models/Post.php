@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use Database\Factories\PostFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Post extends Model
 {
-    /** @use HasFactory<\Database\Factories\PostFactory> */
+    /** @use HasFactory<PostFactory> */
     use HasFactory;
 
     // add fillable

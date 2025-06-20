@@ -2,38 +2,49 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Filament\Tables\Columns\Layout\Split;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\Layout\Stack;
+use Filament\Actions\ViewAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\Action;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\ExportAction;
+use Filament\Actions\ImportAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\ExportBulkAction;
+use App\Filament\Resources\UserResource\Pages\ListUsers;
+use App\Filament\Resources\UserResource\Pages\CreateUser;
+use App\Filament\Resources\UserResource\Pages\ViewUser;
+use App\Filament\Resources\UserResource\Pages\EditUser;
 use App\Models\User;
 use Filament\Tables;
-use Filament\Forms\Form;
 use Filament\Tables\Table;
-use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
-use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\Select;
 use App\Filament\Exports\UserExporter;
 use App\Filament\Imports\UserImporter;
-use Filament\Forms\Components\Section;
 use Filament\Support\Enums\FontWeight;
 use Filament\Forms\Components\TextInput;
-use Filament\Tables\Actions\ExportAction;
-use Filament\Tables\Actions\ImportAction;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Infolists\Components\TextEntry;
-use Filament\Tables\Actions\ExportBulkAction;
-use App\Filament\Resources\UserResource\Pages;
-use STS\FilamentImpersonate\Tables\Actions\Impersonate;
-use Filament\Infolists\Components\Section as InfolistSection;
+// use App\Filament\Resources\UserResource\Pages;
+// use STS\FilamentImpersonate\Tables\Actions\Impersonate;
 
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-users';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-users';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Section::make(
                     'User Information'
                 )->schema([
@@ -56,23 +67,23 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\Layout\Split::make([
-                    Tables\Columns\ImageColumn::make('avatar_url')
+                Split::make([
+                    ImageColumn::make('avatar_url')
                         ->searchable()
                         ->circular()
                         ->grow(false)
                         ->getStateUsing(fn($record) => $record->avatar_url
                             ? $record->avatar_url
                             : "https://ui-avatars.com/api/?name=" . urlencode($record->name)),
-                    Tables\Columns\TextColumn::make('name')
+                    TextColumn::make('name')
                         ->searchable()
                         ->weight(FontWeight::Bold),
-                    Tables\Columns\Layout\Stack::make([
-                        Tables\Columns\TextColumn::make('roles.name')
+                    Stack::make([
+                        TextColumn::make('roles.name')
                             ->searchable()
                             ->icon('heroicon-o-shield-check')
                             ->grow(false),
-                        Tables\Columns\TextColumn::make('email')
+                        TextColumn::make('email')
                             ->icon('heroicon-m-envelope')
                             ->searchable()
                             ->grow(false),
@@ -86,12 +97,12 @@ class UserResource extends Resource
                     ->multiple()
                     ->preload(),
             ])
-            ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+            ->recordActions([
+                ViewAction::make(),
+                EditAction::make(),
                 Action::make('Set Role')
                     ->icon('heroicon-m-adjustments-vertical')
-                    ->form([
+                    ->schema([
                         Select::make('role')
                             ->relationship('roles', 'name')
                             ->multiple()
@@ -102,7 +113,7 @@ class UserResource extends Resource
                             ->getOptionLabelFromRecordUsing(fn($record) => $record->name),
                     ]),
                 // Impersonate::make(),
-                Tables\Actions\DeleteAction::make(),
+                DeleteAction::make(),
             ])
             ->headerActions([
                 ExportAction::make()
@@ -110,9 +121,9 @@ class UserResource extends Resource
                 ImportAction::make()
                     ->importer(UserImporter::class)
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
                 ExportBulkAction::make()
                     ->exporter(UserExporter::class)
@@ -129,17 +140,17 @@ class UserResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListUsers::route('/'),
-            'create' => Pages\CreateUser::route('/create'),
-            'view' => Pages\ViewUser::route('/{record}'),
-            'edit' => Pages\EditUser::route('/{record}/edit'),
+            'index' => ListUsers::route('/'),
+            'create' => CreateUser::route('/create'),
+            'view' => ViewUser::route('/{record}'),
+            'edit' => EditUser::route('/{record}/edit'),
         ];
     }
-    public static function infolist(Infolist $infolist): Infolist
+    public static function infolist(Schema $schema): Schema
     {
-        return $infolist
-            ->schema([
-                InfolistSection::make('User Information')->schema([
+        return $schema
+            ->components([
+                Section::make('User Information')->schema([
                     TextEntry::make('name'),
                     TextEntry::make('email'),
                 ]),

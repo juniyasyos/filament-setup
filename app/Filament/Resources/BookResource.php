@@ -2,27 +2,37 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Textarea;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Actions\ViewAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\ExportAction;
+use Filament\Actions\ImportAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use App\Filament\Resources\BookResource\Pages\ListBooks;
+use App\Filament\Resources\BookResource\Pages\CreateBook;
+use App\Filament\Resources\BookResource\Pages\EditBook;
+use Filament\Schemas\Components\Section;
 use App\Filament\Exports\BookExporter;
 use App\Filament\Imports\BookImporter;
 use App\Filament\Resources\BookResource\Pages;
 use App\Models\Book;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
-use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Actions\ExportAction;
-use Filament\Tables\Actions\ImportAction;
 use Filament\Tables\Table;
 
 class BookResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = Book::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-book-open';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-book-open';
 
     public static function getPermissionPrefixes(): array
     {
@@ -47,17 +57,17 @@ class BookResource extends Resource implements HasShieldPermissions
         ];
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('title')
+        return $schema
+            ->components([
+                TextInput::make('title')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('author')
+                TextInput::make('author')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\Textarea::make('description')
+                Textarea::make('description')
                     ->required()
                     ->columnSpanFull(),
             ]);
@@ -67,15 +77,15 @@ class BookResource extends Resource implements HasShieldPermissions
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('title')
+                TextColumn::make('title')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('author')
+                TextColumn::make('author')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
+                TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -83,19 +93,19 @@ class BookResource extends Resource implements HasShieldPermissions
             ->filters([
                 //
             ])
-            ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+            ->recordActions([
+                ViewAction::make(),
+                EditAction::make(),
+                DeleteAction::make(),
 
             ])
             ->headerActions([
                 ExportAction::make()->exporter(BookExporter::class),
                 ImportAction::make()->importer(BookImporter::class),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
@@ -110,17 +120,17 @@ class BookResource extends Resource implements HasShieldPermissions
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListBooks::route('/'),
-            'create' => Pages\CreateBook::route('/create'),
+            'index' => ListBooks::route('/'),
+            'create' => CreateBook::route('/create'),
             // 'view' => Pages\ViewBook::route('/{record}'),
-            'edit' => Pages\EditBook::route('/{record}/edit'),
+            'edit' => EditBook::route('/{record}/edit'),
         ];
     }
 
-    public static function infolist(Infolist $infolist): Infolist
+    public static function infolist(Schema $schema): Schema
     {
-        return $infolist
-            ->schema([
+        return $schema
+            ->components([
                 Section::make('User Information')->schema([
                     TextEntry::make('name'),
                     TextEntry::make('email'),
