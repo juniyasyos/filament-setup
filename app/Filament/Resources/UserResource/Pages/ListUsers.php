@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\UserResource\Pages;
 
+use Filament\Actions\CreateAction;
+use Maatwebsite\Excel\Excel;
 use App\Filament\Resources\UserResource;
 use Filament\Actions;
 use Filament\Actions\Action;
@@ -17,13 +19,13 @@ class ListUsers extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            CreateAction::make(),
             ExportAction::make()
                 ->exports([
                     ExcelExport::make()
                         ->fromTable()
                         ->withFilename(fn($resource) => $resource::getModelLabel() . '-' . date('Y-m-d'))
-                        ->withWriterType(\Maatwebsite\Excel\Excel::XLSX)
+                        ->withWriterType(Excel::XLSX)
                         ->withColumns([
                             Column::make('updated_at'),
                         ])

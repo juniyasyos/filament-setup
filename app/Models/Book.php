@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\BookFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Image\Enums\Fit;
@@ -11,7 +12,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class Book extends Model implements HasMedia
 {
-    /** @use HasFactory<\Database\Factories\BookFactory> */
+    /** @use HasFactory<BookFactory> */
     use HasFactory, InteractsWithMedia;
 
     // add fillable
