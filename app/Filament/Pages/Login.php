@@ -66,21 +66,6 @@ class Login extends \Filament\Auth\Pages\Login
             'remember' => true,
         ]);
     }
-    /**
-     * @return array<int | string, string | Form>
-     */
-    protected function getForms(): array
-    {
-        return [
-            'form' => $this->form(
-                $this->makeForm()
-                    ->components([
-                        $this->getEmailFormComponent(),
-                        $this->getPasswordFormComponent(),
-                        $this->getRememberFormComponent(),
-                    ])
-                    ->statePath('data'),
-            ),
-        ];
-    }
+    // Filament v4 builds the login form via Schema on the base class.
+    // No need to override `getForms()`; rely on the parent implementation.
 }

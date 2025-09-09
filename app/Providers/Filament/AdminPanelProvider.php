@@ -100,7 +100,6 @@ class AdminPanelProvider extends PanelProvider
     {
         $plugins = [
             FilamentShieldPlugin::make(),
-            ApiServicePlugin::make(),
             BreezyCore::make()
                 ->myProfile(
                     shouldRegisterUserMenu: true, // Sets the 'account' link in the panel User Menu (default = true)

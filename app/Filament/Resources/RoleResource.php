@@ -16,37 +16,29 @@ use App\Filament\Resources\RoleResource\Pages\CreateRole;
 use App\Filament\Resources\RoleResource\Pages\ViewRole;
 use App\Filament\Resources\RoleResource\Pages\EditRole;
 use Filament\Panel;
-use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use BezhanSalleh\FilamentShield\Forms\ShieldSelectAllToggle;
-use App\Filament\Resources\RoleResource\Pages;
 use BezhanSalleh\FilamentShield\Support\Utils;
 use BezhanSalleh\FilamentShield\Traits\HasShieldFormComponents;
+use BezhanSalleh\PluginEssentials\Concerns\Resource as Essentials;
 use Filament\Facades\Filament;
-use Filament\Forms;
 use Filament\Resources\Resource;
-use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 
-class RoleResource extends Resource implements HasShieldPermissions
+class RoleResource extends Resource
 {
+    use Essentials\BelongsToParent;
+    use Essentials\BelongsToTenant;
+    use Essentials\HasGlobalSearch;
+    use Essentials\HasLabels;
+    use Essentials\HasNavigation;
     use HasShieldFormComponents;
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    public static function getPermissionPrefixes(): array
-    {
-        return [
-            'view',
-            'view_any',
-            'create',
-            'update',
-            'delete',
-            'delete_any',
-        ];
-    }
+    // Permission prefixes are handled by Filament Shield configuration in v4.
 
     public static function form(Schema $schema): Schema
     {
@@ -171,52 +163,8 @@ class RoleResource extends Resource implements HasShieldPermissions
         return __('filament-shield::filament-shield.resource.label.roles');
     }
 
-    public static function shouldRegisterNavigation(): bool
-    {
-        return Utils::isResourceNavigationRegistered();
-    }
-
-    public static function getNavigationGroup(): ?string
-    {
-        return Utils::isResourceNavigationGroupEnabled()
-            ? __('filament-shield::filament-shield.nav.group')
-            : '';
-    }
-
-    public static function getNavigationLabel(): string
-    {
-        return __('filament-shield::filament-shield.nav.role.label');
-    }
-
-    public static function getNavigationIcon(): string
-    {
-        return __('filament-shield::filament-shield.nav.role.icon');
-    }
-
-    public static function getNavigationSort(): ?int
-    {
-        return Utils::getResourceNavigationSort();
-    }
-
     public static function getSlug(?Panel $panel = null): string
     {
         return Utils::getResourceSlug();
-    }
-
-    public static function getNavigationBadge(): ?string
-    {
-        return Utils::isResourceNavigationBadgeEnabled()
-            ? strval(static::getEloquentQuery()->count())
-            : null;
-    }
-
-    public static function isScopedToTenant(): bool
-    {
-        return Utils::isScopedToTenant();
-    }
-
-    public static function canGloballySearch(): bool
-    {
-        return Utils::isResourceGloballySearchable() && count(static::getGloballySearchableAttributes()) && static::canViewAny();
     }
 }
